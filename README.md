@@ -1,429 +1,250 @@
 # ipfs-toolkit
 Interplanetary File System (IPFS) MCP toolkit
 
-# Teckel IPFS API Reference
+# teckel MCP Server — IPFS API Reference
 
-This document describes all RESTful API endpoints for managing IPFS content via the teckel platform. All methods support authentication via API key and are available as MCP tools for voice agents and automated workflows.
+This document describes the REST API endpoints tagged `ipfs` exposed by the teckel MCP server.
+
+**Base URL:** `https://mcp-servers.bh.tkllabs.io:9780`
+
+---
 
 ## Authentication
 
-All endpoints require authentication via a teckel API key. The API key must be provided in the HTTP Authorization header using Bearer token authentication:
+All endpoints require a Bearer token in the `Authorization` header:
 
 ```
 Authorization: Bearer YOUR_API_KEY
 ```
 
-## Base URL
+---
 
-```
-https://mcp-servers.bh.tkllabs.io:9780
-```
+## Endpoint Index
+
+| Method | Path | MCP Tool Name | Description |
+|--------|------|---------------|-------------|
+| POST | `/get_ipfs_content_for_apikey` | `list_ipfs_files` | List IPFS files for account |
+| POST | `/remove_ipfs_files_from_account` | `remove_ipfs_files` | Remove multiple IPFS files by nickname search |
+| POST | `/pin_ipfs_files_for_apikey` | `pin_ipfs_files` | Pin multiple IPFS files by nickname search |
+| POST | `/unpin_ipfs_files_for_apikey` | `unpin_ipfs_files` | Unpin multiple IPFS files by nickname search |
+| POST | `/pin_ipfs_cid_for_apikey` | `pin_ipfs_cid` | Pin a single IPFS file by CID |
+| POST | `/remove_ipfs_cid_from_account` | `remove_ipfs_cid_from_account` | Remove a single IPFS file by CID |
+| POST | `/publish_ipfs_file_to_webserver` | `publish_ipfs_file_to_webserver` | Publish an IPFS file to the teckel web server |
+| POST | `/upload_sender_file_to_ipfs_for_apikey` | `upload_file_to_ipfs` | Upload a file to IPFS |
+| POST | `/upload_sender_base64_to_ipfs_for_apikey` | `upload_base64_file_to_ipfs` | Upload base64-encoded file to IPFS |
+| POST | `/retrieve_ipfs_file_for_apikey` | `retrieve_ipfs_file` | Retrieve an IPFS file by CID |
 
 ---
 
-## 1. Get IPFS Content for Account
+## Endpoints
 
-**Endpoint**: `/get_ipfs_content_for_apikey`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `get_my_ipfs_content`  
+---
 
-**Description**: Retrieve a list of all IPFS files in your account with optional filtering by search string, pinned state, encrypted state, and content type.
+### POST `/get_ipfs_content_for_apikey`
 
-### Parameters
+List IPFS files for the account associated with the API key, with optional filtering by nickname, pinned status, encrypted state, and content type.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `search_string` | string | (empty) | Search for this string in the file nickname. Leave blank to return all files. |
-| `pinned_state` | integer | 0 | Filter by pinned status: 0 = all files, 1 = only pinned files, 2 = only unpinned files |
-| `encrypted_state` | integer | 0 | Filter by encryption status: 0 = all files, 1 = only encrypted files, 2 = only unencrypted files |
-| `content_type` | string | (empty) | Filter by content type (e.g., "image", "audio", "video", "document"). Leave blank to ignore. |
+**MCP tool:** `list_ipfs_files` — List IPFS files (selected on nickname via fuzzy search_string) for the account corresponding to the teckel API key used in the call.
 
-### CURL Example
+**Parameters**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `search_string` | string | No | `""` | Search for this string in the file nickname. Leave blank to return all. |
+| `pinned_state` | integer | No | `0` | `0` = all entries; `1` = pinned only; `2` = unpinned only |
+| `encrypted_state` | integer | No | `0` | `0` = all entries; `1` = encrypted only; `2` = unencrypted only |
+| `content_type` | string | No | `""` | Filter by content type, e.g. `image`, `audio`, `video`. Leave blank to ignore. |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/get_ipfs_content_for_apikey?search_string=vacation&pinned_state=1&encrypted_state=0&content_type=image" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/get_ipfs_content_for_apikey?search_string=my_video&pinned_state=0&encrypted_state=0&content_type=video" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "result": [
-    {
-      "cid": "QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3",
-      "nickname": "vacation-photo-001",
-      "iqyu_type": "GENERAL",
-      "is_encrypted": 0,
-      "wallet_address": "0x8f29aced081d2bfd695a85ababf944c2d28ffb4a",
-      "filename": "photo.png",
-      "filesize_GB": 0.001612847,
-      "content_type": "image/png",
-      "create_date": "Sat, 29 Nov 2025 12:51:28 GMT",
-      "is_pinned": 1
-    }
-  ]
-}
-```
-
 ---
 
-## 2. Remove IPFS Files from Account
+### POST `/remove_ipfs_files_from_account`
 
-**Endpoint**: `/remove_ipfs_files_from_account`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `remove_my_ipfs_content`  
+Unpin and remove IPFS files (selected by fuzzy nickname search) from the teckel IPFS node and account inventory.
 
-**Description**: Unpin and permanently remove IPFS files from your account matching specified filters. Files removed from the teckel node may still exist on the decentralized IPFS network if pinned elsewhere.
+> **Note:** This only removes content from the teckel node and inventory. The content may still exist on the decentralised IPFS network.
 
-### Parameters
+**MCP tool:** `remove_ipfs_files` — Unpin and remove the IPFS files (selected on nickname via fuzzy search_string) from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS de-centralized network.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `search_string` | string | (empty) | Search for this string in the file nickname to filter removal candidates. Leave blank to remove all files. |
-| `pinned_state` | integer | 0 | Filter by pinned status: 0 = all files, 1 = only pinned files, 2 = only unpinned files |
-| `encrypted_state` | integer | 0 | Filter by encryption status: 0 = all files, 1 = only encrypted files, 2 = only unencrypted files |
-| `content_type` | string | (empty) | Filter by content type (e.g., "image", "audio"). Leave blank to ignore. |
+**Parameters**
 
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `search_string` | string | No | `""` | Search for this string in the file nickname. Leave blank to match all. |
+| `pinned_state` | integer | No | `0` | `0` = all entries; `1` = pinned only; `2` = unpinned only |
+| `encrypted_state` | integer | No | `0` | `0` = all entries; `1` = encrypted only; `2` = unencrypted only |
+| `content_type` | string | No | `""` | Filter by content type, e.g. `image`, `audio`, `video`. Leave blank to ignore. |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/remove_ipfs_files_from_account?search_string=old&pinned_state=2" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/remove_ipfs_files_from_account?search_string=old_test_files&pinned_state=0&encrypted_state=0" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "message": "Successfully removed 3 IPFS files from your account",
-  "files_removed": 3
-}
-```
-
 ---
 
-## 3. Pin IPFS Files
+### POST `/pin_ipfs_files_for_apikey`
 
-**Endpoint**: `/pin_ipfs_files_for_apikey`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `pin_ipfs_cid`  
+Pin IPFS files (selected by fuzzy nickname search) on the teckel IPFS node. Pinning prevents automatic garbage collection of the content.
 
-**Description**: Pin IPFS files in your account matching specified filters. Pinning prevents automatic deletion of files from the teckel IPFS node.
+**MCP tool:** `pin_ipfs_files` — Pin the IPFS files (selected on nickname via fuzzy search_string) on to the teckel IPFS node for the account corresponding to the teckel API key used in the call. Pinning prevents automatic deletion of the content from the IPFS node.
 
-### Parameters
+**Parameters**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `search_string` | string | (empty) | Search for this string in file nicknames to filter which files to pin. Leave blank to pin all files. |
-| `pinned_state` | integer | 0 | Filter by current pinned status: 0 = all files, 1 = only already pinned files, 2 = only unpinned files |
-| `encrypted_state` | integer | 0 | Filter by encryption status: 0 = all files, 1 = only encrypted files, 2 = only unencrypted files |
-| `content_type` | string | (empty) | Filter by content type (e.g., "image", "video"). Leave blank to ignore. |
-
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `search_string` | string | No | `""` | Search for this string in the file nickname. Leave blank to match all. |
+| `pinned_state` | integer | No | `0` | `0` = all entries; `1` = pinned only; `2` = unpinned only |
+| `encrypted_state` | integer | No | `0` | `0` = all entries; `1` = encrypted only; `2` = unencrypted only |
+| `content_type` | string | No | `""` | Filter by content type, e.g. `image`, `audio`, `video`. Leave blank to ignore. |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/pin_ipfs_files_for_apikey?search_string=important&pinned_state=2" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/pin_ipfs_files_for_apikey?search_string=important_files&pinned_state=2" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "message": "Successfully pinned 2 IPFS files",
-  "files_pinned": 2
-}
-```
-
 ---
 
-## 4. Unpin IPFS Files
+### POST `/unpin_ipfs_files_for_apikey`
 
-**Endpoint**: `/unpin_ipfs_files_for_apikey`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `unpin_ipfs_cid`  
+Unpin IPFS files (selected by fuzzy nickname search) from the teckel IPFS node. Unpinned files are eligible for automatic garbage collection.
 
-**Description**: Unpin IPFS files in your account matching specified filters. Unpinning allows these files to be automatically garbage collected from the teckel IPFS node.
+**MCP tool:** `unpin_ipfs_files` — Unpin the IPFS files (selected on nickname via fuzzy search_string) from the teckel IPFS node for the account corresponding to the teckel API key used in the call. Unpinning allows automatic deletion of the content from the IPFS node.
 
-### Parameters
+**Parameters**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `search_string` | string | (empty) | Search for this string in file nicknames to filter which files to unpin. Leave blank to unpin all files. |
-| `pinned_state` | integer | 0 | Filter by current pinned status: 0 = all files, 1 = only pinned files, 2 = only unpinned files |
-| `encrypted_state` | integer | 0 | Filter by encryption status: 0 = all files, 1 = only encrypted files, 2 = only unencrypted files |
-| `content_type` | string | (empty) | Filter by content type (e.g., "image", "audio"). Leave blank to ignore. |
-
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `search_string` | string | No | `""` | Search for this string in the file nickname. Leave blank to match all. |
+| `pinned_state` | integer | No | `0` | `0` = all entries; `1` = pinned only; `2` = unpinned only |
+| `encrypted_state` | integer | No | `0` | `0` = all entries; `1` = encrypted only; `2` = unencrypted only |
+| `content_type` | string | No | `""` | Filter by content type, e.g. `image`, `audio`, `video`. Leave blank to ignore. |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/unpin_ipfs_files_for_apikey?search_string=temp&encrypted_state=1" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/unpin_ipfs_files_for_apikey?search_string=old_drafts&pinned_state=1" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "message": "Successfully unpinned 1 IPFS file",
-  "files_unpinned": 1
-}
-```
-
 ---
 
-## 5. Pin Individual IPFS File by CID
+### POST `/pin_ipfs_cid_for_apikey`
 
-**Endpoint**: `/pin_ipfs_cid_for_apikey`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `pin_ipfs_cid`  
+Pin the individual IPFS entity identified by its CID on the teckel IPFS node. Pinning prevents automatic deletion.
 
-**Description**: Pin a specific IPFS file identified by its content identifier (CID).
+**MCP tool:** `pin_ipfs_cid` — Pin the individual entity identified by its IPFS CID on to the teckel IPFS node for the account corresponding to the teckel API key used in the call. Pinning prevents automatic deletion of the content from the IPFS node.
 
-### Parameters
+**Parameters**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `cid` | string | (required) | IPFS content identifier of the file to pin |
-
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `cid` | string | No | `""` | IPFS content identifier of the file to pin |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/pin_ipfs_cid_for_apikey?cid=QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/pin_ipfs_cid_for_apikey?cid=QmExampleCID123" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "message": "Successfully pinned file",
-  "cid": "QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3"
-}
-```
-
 ---
 
-## 6. Remove Individual IPFS File by CID
+### POST `/remove_ipfs_cid_from_account`
 
-**Endpoint**: `/remove_ipfs_cid_from_account`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `remove_ipfs_cid_from_account`  
+Unpin and remove the individual IPFS entity identified by its CID from the teckel IPFS node and account inventory.
 
-**Description**: Unpin and remove a specific IPFS file identified by its content identifier (CID) from your account.
+> **Note:** This only removes content from the teckel node and inventory. The content may still exist on the decentralised IPFS network.
 
-### Parameters
+**MCP tool:** `remove_ipfs_cid_from_account` — Unpin and remove the individual entity identified by its IPFS CID from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS de-centralized network.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `cid` | string | (required) | IPFS content identifier of the file to remove |
+**Parameters**
 
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `cid` | string | No | `""` | IPFS content identifier of the file to remove |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/remove_ipfs_cid_from_account?cid=QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/remove_ipfs_cid_from_account?cid=QmExampleCID123" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "message": "Successfully removed IPFS file from account",
-  "cid": "QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3"
-}
-```
-
 ---
 
-## 7. Publish IPFS File to Web Server
+### POST `/publish_ipfs_file_to_webserver`
 
-**Endpoint**: `/publish_ipfs_file_to_webserver`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `publish_ipfs_file_to_webserver`  
+Retrieve an IPFS file by CID from the teckel node and publish it on the teckel web server, applying decryption if necessary. Returns a browseable public URL.
 
-**Description**: Retrieve an IPFS file from the teckel IPFS node and publish it on the teckel web server. If the file is encrypted, it is automatically decrypted. Returns a browseable URL for public access.
+**MCP tool:** `publish_ipfs_file_to_webserver` — Retrieve the IPFS file, identified by its IPFS CID, from the teckel IPFS node, and publish it on the teckel web server, applying decryption if necessary, for the account corresponding to the teckel API key used in the call, returning the browseable URL.
 
-### Parameters
+**Parameters**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `cid` | string | (required) | IPFS content identifier of the file to publish |
-
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `cid` | string | No | `""` | IPFS content identifier of the file to publish |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/publish_ipfs_file_to_webserver?cid=QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/publish_ipfs_file_to_webserver?cid=QmExampleCID123" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "message": "File published to web server",
-  "cid": "QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3",
-  "web_url": "https://teckel.web-server.io/files/QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3"
-}
-```
-
 ---
 
-## 8. Upload File to IPFS
+### POST `/upload_sender_file_to_ipfs_for_apikey`
 
-**Endpoint**: `/upload_sender_file_to_ipfs_for_apikey`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `upload_file_to_ipfs`  
+Upload a file to the teckel IPFS node for the account associated with the API key. The content is pre-scanned for compliance with teckel terms before being accepted.
 
-**Description**: Upload a file to the teckel IPFS node. The file is validated for malware and content acceptability before upload. Supports optional encryption.
+**MCP tool:** `upload_file_to_ipfs` — Upload file contents to the teckel IPFS node for the account corresponding to the teckel API key used in the call. The content will be pre-scanned for compatibility with the teckel terms and will be rejected if not compliant.
 
-### Parameters
+**Parameters**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `file` | file | (required) | The file to upload (multipart form data) |
-| `nicknameOnIPFS` | string | (auto-generated) | Nickname for the file in IPFS inventory. If blank, a unique name is automatically generated. |
-| `doEncryptOnIPFS` | string | "false" | Whether to encrypt the file before uploading: "true" or "false" |
-
-### CURL Example
+| Name | In | Type | Required | Default | Description |
+|------|----|------|----------|---------|-------------|
+| `file` | multipart form body | file | Yes | — | File to upload |
+| `nicknameOnIPFS` | query | string | No | `""` | Nickname for the IPFS listing. Auto-generated if blank. |
+| `doEncryptOnIPFS` | query | string | No | `"false"` | Apply encryption before uploading. `true` or `false`. |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/upload_sender_file_to_ipfs_for_apikey?nicknameOnIPFS=my_document&doEncryptOnIPFS=true" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/upload_sender_file_to_ipfs_for_apikey?nicknameOnIPFS=my_document&doEncryptOnIPFS=false" \
   -H "Authorization: Bearer YOUR_API_KEY" \
-  -F "file=@/path/to/document.pdf"
-```
-
-### Response
-
-```json
-{
-  "hash": "QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3",
-  "message": "Successfully uploaded file to IPFS",
-  "filename": "document.pdf",
-  "encrypted": true
-}
+  -F "file=@/path/to/your/file.pdf"
 ```
 
 ---
 
-## 9. Upload Base64-Encoded File to IPFS
+### POST `/upload_sender_base64_to_ipfs_for_apikey`
 
-**Endpoint**: `/upload_sender_base64_to_ipfs_for_apikey`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `upload_base64_file_to_ipfs`  
+Upload base64-encoded file data to the teckel IPFS node for the account associated with the API key. The content is pre-scanned for compliance with teckel terms before being accepted.
 
-**Description**: Upload a base64-encoded file to the teckel IPFS node. Useful for uploading files from applications that don't support multipart form uploads. File type is automatically detected from the binary data. Supports optional encryption.
+**MCP tool:** `upload_base64_file_to_ipfs` — Upload base64-encoded file contents to the teckel IPFS node for the account corresponding to the teckel API key used in the call. The content will be pre-scanned for compatibility with the teckel terms and will be rejected if not compliant.
 
-### Parameters
+**Parameters**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `base64_data` | string | (required) | Base64-encoded file data |
-| `nicknameOnIPFS` | string | (auto-generated) | Nickname for the file in IPFS inventory. If blank, a unique name is automatically generated. |
-| `doEncryptOnIPFS` | string | "false" | Whether to encrypt the file before uploading: "true" or "false" |
-
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `base64_data` | string | No | `""` | Base64-encoded file data |
+| `nicknameOnIPFS` | string | No | `""` | Nickname for the IPFS listing. Auto-generated if blank. |
+| `doEncryptOnIPFS` | string | No | `"false"` | Apply encryption before uploading. `true` or `false`. |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/upload_sender_base64_to_ipfs_for_apikey?base64_data=iVBORw0KGgoAAAANSUhEUgAAAAUA...&nicknameOnIPFS=my_image&doEncryptOnIPFS=false" \
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/upload_sender_base64_to_ipfs_for_apikey?base64_data=SGVsbG8gV29ybGQ%3D&nicknameOnIPFS=my_file&doEncryptOnIPFS=false" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-### Response
-
-```json
-{
-  "hash": "QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3",
-  "message": "Successfully uploaded file to IPFS",
-  "filename": "file.png",
-  "encrypted": false
-}
-```
-
 ---
 
-## 10. Retrieve IPFS File
+### POST `/retrieve_ipfs_file_for_apikey`
 
-**Endpoint**: `/retrieve_ipfs_file_for_apikey`  
-**HTTP Method**: `POST`  
-**MCP Tool**: `retrieve_ipfs_file`  
+Retrieve the contents of an IPFS file by CID from the account inventory. Automatically decrypts if the file is encrypted. Only files originally posted to IPFS via teckel are supported.
 
-**Description**: Retrieve the contents of an IPFS file from your account. If the file is encrypted, it is automatically decrypted before return. Only files originally uploaded via teckel are supported.
+**MCP tool:** `retrieve_ipfs_file` — Retrieve the contents of the IPFS file identified by the provided CID, from the inventory of the account corresponding to the teckel API key used in the call. Will automatically decrypt if encrypted. Only files originally posted to IPFS via teckel are supported i.e., not generic (non-teckel origin) IPFS content.
 
-### Parameters
+**Parameters**
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `cid` | string | (required) | IPFS content identifier of the file to retrieve |
-
-### CURL Example
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `cid` | string | No | `""` | IPFS content identifier of the file to retrieve |
 
 ```bash
-curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/retrieve_ipfs_file_for_apikey?cid=QmbKz8vXPDmWtD7tszmETuDqSfxpYae5jPuXJRwDLFP7d3" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  --output downloaded_file.pdf
-```
-
-### Response
-
-The file contents are returned directly. Use `--output` flag to save to a file.
-
----
-
-## Error Handling
-
-All endpoints return standard HTTP status codes:
-
-| Status Code | Meaning |
-|-------------|---------|
-| 200 | Success |
-| 400 | Bad request (invalid parameters) |
-| 403 | Forbidden (invalid or missing API key) |
-| 404 | Not found (CID or file does not exist) |
-| 422 | Unprocessable entity (validation failed, e.g., malware/content check) |
-| 500 | Internal server error |
-
-### Error Response Example
-
-```json
-{
-  "message": "Missing or invalid APIKEY.",
-  "status_code": 403
-}
-```
-
----
-
-## File Validation
-
-When uploading files, the following automatic checks are performed:
-
-1. **Malware Scanning**: Files are scanned using VirusTotal API (if enabled)
-2. **Content Acceptability**: Images are scanned using Google Safe Images, videos using Google Safe Videos
-3. **File Type Detection**: File type is detected from magic bytes/signatures
-
-Files failing these checks will be rejected with HTTP 422.
-
----
-
-## Billing
-
-All file operations are subject to billing based on file size and operations performed:
-
-- **Upload**: Charged per GB based on file size
-- **Storage**: Monthly charges for pinned content
-- **Bandwidth**: Retrieval and publishing operations are charged separately
-- **Scanning**: Malware and content acceptability checks incur separate charges
-
-Billing is automatically applied to your teckel account and deducted from your teckel credits.
-
----
-
-## Authentication for MCP Clients
-
-For MCP tool integration with voice agents and n8n workflows, include the API key in the HTTP Authorization header:
-
-```
-Authorization: Bearer YOUR_API_KEY
+curl -X POST "https://mcp-servers.bh.tkllabs.io:9780/retrieve_ipfs_file_for_apikey?cid=QmExampleCID123" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
