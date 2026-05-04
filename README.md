@@ -58,6 +58,8 @@ To play our part in keeping the internet clean, teckel pre-scans all uploaded co
 ## API Key Security
 Should you have concerns that your API key has been compromised (and someone else may be consuming your teckel credits by using your key), simply replace the key via the API Key Manager → Replace API key in the teckel App. The old key will then be immediately disabled. IMPORTANT: if you change your API key, any IPFS content previously encrypted via teckel will no longer be retrievable since the API key is used for encryption. Before you change your API key, make sure you have retrieved (and unencrypted) your previous IPFS data and stored the unencrypted versions offline.
 
+## teckel App
+The IPFS toolkit functionality is wholly compatible with the IPFS functionality of the teckel app. This means that IPFS content uploaded via the teckel App can be accessed via the IPFS toolkit, and vice versa. 
 
 # teckel MCP Server — IPFS API Reference
 
