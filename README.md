@@ -38,7 +38,7 @@ Whatever the client, the configuration is essentially the same. Namely, provide 
 NOTE: This configuration assumes the HTTP(streamable) protocol. If your client requires the older (now legacy) SSE protocol, replace “ipfs-mcp” with “ipfs-sse”.
 
 # Using the RESTful API Servers
-The benefit of using the MCP servers is that the connected LLMs can parse the natural language in the user prompts, populate the required parameters for calling the toolbox API functions, then likewise unravel the returned JSON structure into natural language for presentation to the user. However, if you wish to utilise the teckel toolkits at a lower level (e.g., in your own app), you can call the functions directly using the RESTful (POST) API protocols. You are then responsible for populating the input parameters, and handling the returned JSON output.
+The benefit of using the MCP servers is that the connected LLMs can parse the natural language in the user prompts, populate the required parameters for calling the toolbox API functions, then likewise unravel the returned JSON structure into natural language for presentation to the user. However, if you wish to utilise the teckel toolkits at a lower level (e.g., in your own app), you can call the functions directly using the RESTful (POST) API protocols. You are then responsible for populating the input parameters, and handling the returned JSON output. All methods called via RESTful web services must be "awaited": there is no fire-and-forget (with future polling for task completion etc).
 
 ## Pricing
 Pricing (via _teckel credits_ purchased within the teckel App) for usage of tecekl IPFS services can be found at https://teckel.io/pricing/
