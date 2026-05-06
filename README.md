@@ -54,7 +54,7 @@ IPFS is a public service and all content is in principle available to anyone. Th
 
 ## Content moderation
 To play our part in keeping the internet clean, teckel pre-scans all uploaded content for malware and inappropriate content (as per the teckel terms). Any content failing the pre-scan is rejected. The ethereum wallet address associated with the API key used for the attempted upload may be blacklisted at teckel's sole discretion.
- 
+  
 ## API Key Security
 Should you have concerns that your API key has been compromised (and someone else may be consuming your teckel credits by using your key), simply replace the key via the API Key Manager → Replace API key in the teckel App. The old key will then be immediately disabled. IMPORTANT: if you change your API key, any IPFS content previously encrypted via teckel will no longer be retrievable since the API key is used for encryption. Before you change your API key, make sure you have retrieved (and unencrypted) your previous IPFS data and stored the unencrypted versions offline.
 
