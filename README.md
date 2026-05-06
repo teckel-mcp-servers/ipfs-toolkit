@@ -41,7 +41,7 @@ NOTE: This configuration assumes the HTTP(streamable) protocol. If your client r
 The benefit of using the MCP servers is that the connected LLMs can parse the natural language in the user prompts, populate the required parameters for calling the toolbox API functions, then likewise unravel the returned JSON structure into natural language for presentation to the user. However, if you wish to utilise the teckel toolkits at a lower level (e.g., in your own app), you can call the functions directly using the RESTful (POST) API protocols. You are then responsible for populating the input parameters, and handling the returned JSON output. All methods called via RESTful web services must be "awaited": there is no fire-and-forget (with future polling for task completion etc).
 
 ## Pricing
-Pricing (via _teckel credits_ purchased within the teckel App) for usage of tecekl IPFS services can be found at https://teckel.io/pricing/
+Pricing (via _teckel credits_ purchased within the teckel App) for usage of teckel IPFS services can be found at https://teckel.io/pricing/
 
 ## Rate Limiting
 All MCP/API calls are subject to rate-limiting per API key. The thresholds are not published, but if a given API key has exceeded the rate limit, a 429 error code will be returned on the given call.
@@ -50,7 +50,7 @@ All MCP/API calls are subject to rate-limiting per API key. The thresholds are n
 If the MCP/API call fails due to user error resulting in a 4xx error code, the user is charged one Base Call Fee (see https://teckel.io/ai-mcp-services/). If the API call fails due to server error resulting in a 5xx error code, the user is not charged. If the given call is part of a cascade of nested calls, the above rules apply to the “outer” call: In other words, if the outer call fails with a 4xx error code, the user is charged one Base Call Fee (for the failed outer call), and there will be no charge for any of the cascaded calls (whether they succeeded or not). Likewise, if the outer call fails with a 5xx error code, the user is not charged at all (even if the cascaded calls succeed).
 
 ## Encryption
-IPFS is a public service and all content is in principle available to anyone. Therefore if you deem your content to be private, you should make sure it is encrypted before uploading to IPFS. Teckel faciliates such encryption using your teckel API key to construct the encryption key. However, this does not provide end-to-end encryption of your content because your API key is known to the teckel servers. Instead, if you require end-to-end encryption, whereby only you (and not the teckel servers etc) can ever retreive your content, you must first encrypt your files offline using your own chosen method, before uploading to IPFS via teckel.
+IPFS is a public service and all content is in principle available to anyone. Therefore if you deem your content to be private, you should make sure it is encrypted before uploading to IPFS. Teckel facilitates such encryption using your teckel API key to construct the encryption key. However, this does not provide end-to-end encryption of your content because your API key is known to the teckel servers. Instead, if you require end-to-end encryption, whereby only you (and not the teckel servers etc) can ever retrieve your content, you must first encrypt your files offline using your own chosen method, before uploading to IPFS via teckel.
 
 ## Content moderation
 To play our part in keeping the internet clean, teckel pre-scans all uploaded content for malware and inappropriate content (as per the teckel terms). Any content failing the pre-scan is rejected. The ethereum wallet address associated with the API key used for the attempted upload may be blacklisted at teckel's sole discretion.
@@ -126,7 +126,7 @@ Unpin and remove IPFS files (selected by fuzzy nickname search) from the teckel 
 
 > **Note:** This only removes content from the teckel node and inventory. The content may still exist on the decentralised IPFS network.
 
-**MCP tool:** `remove_ipfs_files` — Unpin and remove the IPFS files (selected on nickname via fuzzy search_string) from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS de-centralized network.
+**MCP tool:** `remove_ipfs_files` — Unpin and remove the IPFS files (selected on nickname via fuzzy search_string) from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS decentralized network.
 
 **Parameters**
 
