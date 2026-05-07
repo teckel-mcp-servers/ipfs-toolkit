@@ -214,7 +214,7 @@ Unpin and remove the individual IPFS entity identified by its CID from the tecke
 
 > **Note:** This only removes content from the teckel node and inventory. The content may still exist on the decentralised IPFS network.
 
-**MCP tool:** `remove_ipfs_cid_from_account` — Unpin and remove the individual entity identified by its IPFS CID from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS decentralized network.
+**MCP tool:** `remove_ipfs_cid_from_account` — Unpin and remove the individual entity identified by its IPFS CID from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS decentralised network.
 
 **Parameters**
 
