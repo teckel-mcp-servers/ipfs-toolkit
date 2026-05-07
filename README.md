@@ -127,7 +127,7 @@ Unpin and remove IPFS files (selected by fuzzy nickname search) from the teckel 
 
 > **Note:** This only removes content from the teckel node and inventory. The content may still exist on the decentralised IPFS network.
 
-**MCP tool:** `remove_ipfs_files` — Unpin and remove the IPFS files (selected on nickname via fuzzy search_string) from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS decentralized network.
+**MCP tool:** `remove_ipfs_files` — Unpin and remove the IPFS files (selected on nickname via fuzzy search_string) from the teckel IPFS node and from the wallet account, for the account corresponding to the teckel API key used in the call. Note: this only removes the content from the teckel node and inventory. It may still exist on the IPFS decentralised network.
 
 **Parameters**
 
